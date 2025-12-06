@@ -21,3 +21,9 @@ Thumbs.db
 # Build output
 dist/
 build/
+
+# Backend data storage
+backend/data/
+
+QUICK_START.md
+TEST_CASES.md
