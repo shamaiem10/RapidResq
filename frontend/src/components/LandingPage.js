@@ -1,8 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="lp-container">
 
@@ -14,8 +17,19 @@ const LandingPage = () => {
         </div>
 
         <div className="lp-nav-right">
-          <button className="lp-login">Login</button>
-          <button className="lp-signup">Sign Up</button>
+          <button
+            className="lp-login"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+
+          <button
+            className="lp-signup"
+            onClick={() => navigate("/signup")}
+          >
+            Sign Up
+          </button>
         </div>
       </nav>
 
@@ -37,8 +51,16 @@ const LandingPage = () => {
         </p>
 
         <div className="lp-hero-buttons">
-          <button className="lp-btn-primary">Get Started Free →</button>
-          <button className="lp-btn-secondary">View Demo</button>
+          <button
+            className="lp-btn-primary"
+            onClick={() => navigate("/signup")}
+          >
+            Get Started Free →
+          </button>
+
+          <button className="lp-btn-secondary">
+            View Demo
+          </button>
         </div>
       </section>
 
@@ -102,7 +124,13 @@ const LandingPage = () => {
       <section className="lp-cta">
         <h2>Ready to Stay Prepared?</h2>
         <p>Join thousands who trust RapidResQ for emergency preparedness.</p>
-        <button className="lp-cta-btn">Create Free Account →</button>
+
+        <button
+          className="lp-cta-btn"
+          onClick={() => navigate("/signup")}
+        >
+          Create Free Account →
+        </button>
       </section>
 
       {/* FOOTER */}
@@ -111,7 +139,7 @@ const LandingPage = () => {
           <i className="bi-shield-check lp-logo-icon"></i>
           RapidResQ
         </div>
-        <p>© 2024 RapidResQ. Saving lives, one emergency at a time.</p>
+        <p>© 2025 RapidResQ. Saving lives, one emergency at a time.</p>
       </footer>
 
     </div>

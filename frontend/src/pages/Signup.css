@@ -1,0 +1,194 @@
+/* ========= MAIN CONTAINER ========= */
+.signup-container {
+  width: 100%;
+  height: 100vh;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ========= SIGNUP CARD ========= */
+.signup-card {
+  width: 750px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e6e6e6;
+  position: relative;
+
+  box-shadow:
+    0px 8px 25px rgba(255, 95, 109, 0.18),
+    0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Top gradient strip */
+.signup-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 10px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, #aa0e1b, #7d0707);
+}
+
+/* ========= TITLE ========= */
+.signup-title {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 25px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ========= FORM ========= */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ========= ROWS FOR SIDE-BY-SIDE INPUTS ========= */
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.row .input-group {
+  flex: 1;
+}
+
+/* ========= INPUT GROUP ========= */
+.input-group {
+  position: relative;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px 45px;
+  font-size: 16px;
+  border: 1px solid #d3d3d3;
+  border-radius: 10px;
+  background: #fafafa;
+  transition: 0.25s ease;
+}
+
+/* Focus styling same as login */
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #802121;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+/* Input icons (Bootstrap icons) */
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #777;
+}
+
+/* ========= SKILLS SECTION ========= */
+.skills-label {
+  font-weight: 600;
+  margin-top: 10px;
+  color: #444;
+}
+
+.skills-box {
+  padding: 14px;
+  border: 1px solid #d3d3d3;
+  border-radius: 10px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.skill-item {
+  font-size: 15px;
+}
+
+.other-skill input {
+  padding-left: 45px !important;
+}
+
+/* ========= SIGNUP BUTTON ========= */
+.signup-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 17px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  transition: 0.25s;
+
+  background: linear-gradient(135deg, #ff5f6d, #840505);
+}
+
+.signup-btn:hover {
+  background: linear-gradient(135deg, #ff3b52, #6e0707);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 15px rgba(255, 95, 109, 0.35);
+}
+
+/* ========= LOGIN LINK ========= */
+.login-text {
+  text-align: center;
+  font-size: 15px;
+  margin-top: 12px;
+}
+
+.login-text a {
+  color: #ff5f6d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-text a:hover {
+  text-decoration: underline;
+}
+
+/* ========= MOBILE RESPONSIVE ========= */
+@media (max-width: 700px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .signup-card {
+    width: 95%;
+    padding: 35px;
+  }
+}
+.page-back-arrow {
+  position: fixed; /* fixed on page */
+  top: 20px;
+  left: 20px;
+  font-size: 16px;
+  z-index: 1000; /* above everything else */
+}
+
+.page-back-arrow a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.page-back-arrow a:hover {
+  color: #007bff;
+}
