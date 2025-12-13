@@ -2,7 +2,17 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const API_BASE_URL = "http://localhost:5000/api";
+// Dynamic API URL for mobile compatibility
+const getApiBaseUrl = () => {
+  // If accessing via IP (mobile), use current host's IP
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  // Default localhost for development
+  return "http://localhost:5000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const Login = () => {
   const navigate = useNavigate();
@@ -128,7 +138,11 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
-      setErrors({ submit: "Network error. Please check your connection and try again." });
+      if (error.message.includes('Failed to fetch')) {
+        setErrors({ submit: `Cannot connect to server. Using: ${API_BASE_URL}. Make sure backend is running.` });
+      } else {
+        setErrors({ submit: "Network error. Please check your connection and try again." });
+      }
     } finally {
       setIsSubmitting(false);
     }

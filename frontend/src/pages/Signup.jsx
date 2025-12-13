@@ -3,7 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Signup.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const API_BASE_URL = "http://localhost:5000/api";
+// Dynamic API URL for mobile compatibility
+const getApiBaseUrl = () => {
+  // If accessing via IP (mobile), use current host's IP
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  // Default localhost for development
+  return "http://localhost:5000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const Signup = () => {
   const navigate = useNavigate();

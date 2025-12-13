@@ -7,6 +7,7 @@ const connectDB = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
 
 dotenv.config();
 
@@ -15,9 +16,23 @@ const app = express();
 // Connect to MongoDB Atlas
 connectDB();
 
-// Middleware
+// Middleware - Allow CORS for development (localhost and local network)
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and local network IPs
+    if (origin.includes('localhost') || 
+        origin.includes('127.0.0.1') ||
+        origin.match(/http:\/\/192\.168\.\d+\.\d+:3000/) ||
+        origin.match(/http:\/\/10\.\d+\.\d+\.\d+:3000/)) {
+      return callback(null, true);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -38,6 +53,7 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api', authRoutes);
+app.use('/api/emergency', emergencyRoutes);
 
 // 404 Handler
 app.use((req, res) => {
