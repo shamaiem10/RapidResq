@@ -1,0 +1,318 @@
+/* ===== ROOT ===== */
+.community-container {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 24px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.main-content {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.create-post-btn {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.create-post-btn:hover {
+  opacity: 0.9;
+}
+
+/* ===== SEARCH + FILTER ===== */
+.search-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 12px 14px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  gap: 10px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+/* ===== POSTS ===== */
+.posts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.post-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+.post-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.tag.urgent {
+  background: #dc2626;
+  color: white;
+}
+
+.time {
+  margin-left: auto;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.post-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.post-card p {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.post-info {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.post-info span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.post-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.respond-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ===== FLOATING BUTTON ===== */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: 0 20px 40px rgba(220,38,38,0.4);
+  cursor: pointer;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.create-modal {
+  background: white;
+  width: 420px;
+  border-radius: 18px;
+  padding: 20px;
+  animation: pop 0.25s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.create-form label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.create-form input,
+.create-form textarea,
+.create-form select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.create-form textarea {
+  resize: none;
+  height: 90px;
+}
+
+.urgent-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.submit-btn {
+  margin-top: 10px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* ===== URGENT CHECK FIX ===== */
+.urgent-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.urgent-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #dc2626; /* modern browsers */
+  cursor: pointer;
+}
+
+.urgent-check span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #dc2626;
+  line-height: 1;
+}
