@@ -31,7 +31,7 @@ function CommunityBoard() {
       title: "Urgent: O+ Blood Needed",
       description: "O+ blood required at City Hospital immediately.",
       location: "City Hospital",
-      phone: "923336343230", // digits only
+      phone: "923349435336", // digits only
       author: "Community Member",
       responses: 3,
       timeAgo: "32m ago"

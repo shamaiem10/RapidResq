@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const emergencyRoutes = require('./routes/emergencyRoutes');
+const chatRoutes = require('./routes/chat');
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api', authRoutes);
 app.use('/api/emergency', emergencyRoutes);
+app.use('/api', chatRoutes);
 
 // 404 Handler
 app.use((req, res) => {
