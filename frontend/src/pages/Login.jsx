@@ -2,7 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const API_BASE_URL = "http://localhost:5000/api";
+// Fully dynamic API URL - auto-detects any host's IP
+const getAPIBaseURL = () => {
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  } else {
+    // Automatically use the current host's IP for mobile/network access
+    return `http://${hostname}:5000/api`;
+  }
+};
+
+const API_BASE_URL = getAPIBaseURL();
 
 const Login = () => {
   const navigate = useNavigate();

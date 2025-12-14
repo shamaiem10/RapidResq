@@ -76,7 +76,22 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  const os = require('os');
+  const interfaces = os.networkInterfaces();
+  
+  console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('\nAccess URLs:');
+  console.log(`    Local:    http://localhost:${PORT}`);
+  
+  // Show all network interfaces
+  Object.keys(interfaces).forEach(name => {
+    interfaces[name].forEach(iface => {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        console.log(`   Network:  http://${iface.address}:${PORT}`);
+      }
+    });
+  });
+  console.log('');
 });

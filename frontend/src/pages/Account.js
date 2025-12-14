@@ -4,15 +4,19 @@ import "./Account.css";
 import { AlertTriangle } from "lucide-react";
 import { handlePanicButton } from "../utils/panicButton";
 
-// Dynamic API URL for mobile compatibility
-const getApiBaseUrl = () => {
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return `http://${window.location.hostname}:5000/api`;
+// Fully dynamic API URL - auto-detects any host's IP
+const getAPIBaseURL = () => {
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  } else {
+    // Automatically use the current host's IP for mobile/network access
+    return `http://${hostname}:5000/api`;
   }
-  return "http://localhost:5000/api";
 };
 
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = getAPIBaseURL();
 
 function AccountPage() {
   const navigate = useNavigate();
