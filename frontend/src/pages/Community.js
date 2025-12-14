@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
- 
   Plus,
   Phone,
   MapPin,
@@ -11,44 +10,93 @@ import "./Community.css";
 function CommunityBoard() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    type: "Blood Needed",
+    title: "",
+    description: "",
+    location: "",
+    phone: "",
+    author: "",
+    urgent: false
+  });
 
   const filters = [
     { id: "All", label: "All" },
-    { id: "Blood", label: "Blood Needed" },
-    { id: "Missing", label: "Missing Person" },
-    { id: "Medical", label: "Medical Emergency" },
-    { id: "Shelter", label: "Shelter Needed" },
-    { id: "Food", label: "Food / Water" },
-    { id: "Disaster", label: "Disaster Help" },
+    { id: "Blood Needed", label: "Blood Needed" },
+    { id: "Missing Person", label: "Missing Person" },
+    { id: "Medical Emergency", label: "Medical Emergency" },
+    { id: "Shelter Needed", label: "Shelter Needed" },
+    { id: "Food / Water", label: "Food / Water" },
+    { id: "Disaster Help", label: "Disaster Help" },
     { id: "Urgent", label: "Urgent Only" }
   ];
 
-  const posts = [
-    {
-      id: 1,
-      type: "Blood Needed",
-      urgent: true,
-      title: "Urgent: O+ Blood Needed",
-      description: "O+ blood required at City Hospital immediately.",
-      location: "City Hospital",
-      phone: "923336343230", // digits only
-      author: "Community Member",
-      responses: 3,
-      timeAgo: "32m ago"
-    },
-    {
-      id: 2,
-      type: "Missing Person",
-      urgent: true,
-      title: "Missing Child – 8 Years Old",
-      description: "Last seen near Central Park.",
-      location: "Central Park",
-      phone: "923009876543",
-      author: "Local Police",
-      responses: 12,
-      timeAgo: "7h ago"
+  // Calculate time ago from timestamp
+  const getTimeAgo = (timestamp) => {
+    if (!timestamp) return "Unknown";
+    const now = new Date();
+    const postDate = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - postDate) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  };
+
+  // Fetch posts from backend
+  const fetchPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+      let url = "http://localhost:5000/api/community/posts";
+      
+      // Build query parameters for filtering (handled by backend)
+      const params = new URLSearchParams();
+      if (activeFilter !== "All") {
+        if (activeFilter === "Urgent") {
+          params.append("urgent", "true");
+        } else {
+          params.append("type", activeFilter);
+        }
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.success) {
+        // Format posts with timeAgo (only formatting, no business logic)
+        const formattedPosts = data.posts.map(post => ({
+          ...post,
+          timeAgo: getTimeAgo(post.createdAt)
+        }));
+        setPosts(formattedPosts);
+      } else {
+        console.error("Error fetching posts:", data.message);
+        setPosts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  }, [activeFilter]);
+
+  // Fetch posts on component mount and when filter changes
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  // Handle filter change
+  const handleFilterChange = (filterId) => {
+    setActiveFilter(filterId);
+  };
 
   // Open WhatsApp chat immediately
   const openWhatsApp = (phone) => {
@@ -56,6 +104,50 @@ function CommunityBoard() {
     const cleanNumber = phone.replace(/\D/g, "");
     const url = `https://wa.me/${cleanNumber}`;
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  // Handle form submission
+  const handleSubmitPost = async (e) => {
+    e.preventDefault();
+
+    // Basic client-side validation (backend will also validate)
+    if (!formData.type || !formData.title || !formData.description || !formData.location || !formData.phone || !formData.author) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/community/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Post created successfully!");
+        setFormData({
+          type: "Blood Needed",
+          title: "",
+          description: "",
+          location: "",
+          phone: "",
+          author: "",
+          urgent: false
+        });
+        setShowCreateModal(false);
+        // Refresh posts from backend
+        fetchPosts();
+      } else {
+        alert("Error: " + (data.message || "Failed to create post"));
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Error creating post: " + error.message);
+    }
   };
 
   return (
@@ -83,7 +175,7 @@ function CommunityBoard() {
             <button
               key={f.id}
               className={`filter-btn ${activeFilter === f.id ? "active" : ""}`}
-              onClick={() => setActiveFilter(f.id)}
+              onClick={() => handleFilterChange(f.id)}
             >
               {f.label}
             </button>
@@ -92,9 +184,16 @@ function CommunityBoard() {
 
         {/* Posts */}
         <div className="posts-list">
-          {posts
-            .filter(post => activeFilter === "All" || post.type.includes(activeFilter))
-            .map((post) => (
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <p>Loading posts...</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <p>No posts found. Be the first to create a help request!</p>
+            </div>
+          ) : (
+            posts.map((post) => (
               <div key={post.id} className="post-card">
                 <div className="post-header">
                   <span className="tag">{post.type}</span>
@@ -126,7 +225,8 @@ function CommunityBoard() {
                   </button>
                 </div>
               </div>
-            ))}
+            ))
+          )}
         </div>
       </main>
 
@@ -151,7 +251,10 @@ function CommunityBoard() {
 
             <form className="create-form">
               <label>Category</label>
-              <select>
+              <select 
+                value={formData.type}
+                onChange={(e) => setFormData({...formData, type: e.target.value})}
+              >
                 <option>Blood Needed</option>
                 <option>Missing Person</option>
                 <option>Medical Emergency</option>
@@ -161,23 +264,51 @@ function CommunityBoard() {
               </select>
 
               <label>Title</label>
-              <input placeholder="Brief title" />
+              <input 
+                placeholder="Brief title" 
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+              />
 
               <label>Description</label>
-              <textarea placeholder="Describe your situation..." />
+              <textarea 
+                placeholder="Describe your situation..." 
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
 
               <label>Location</label>
-              <input placeholder="Area / Hospital / City" />
+              <input 
+                placeholder="Area / Hospital / City" 
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+              />
 
               <label>Contact Phone</label>
-              <input placeholder="+92..." />
+              <input 
+                placeholder="92xxxxxxxxxx" 
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              />
+
+              <label>Your Name</label>
+              <input 
+                placeholder="Your name" 
+                value={formData.author}
+                onChange={(e) => setFormData({...formData, author: e.target.value})}
+                required
+              />
 
               <label className="urgent-check">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={formData.urgent}
+                  onChange={(e) => setFormData({...formData, urgent: e.target.checked})}
+                />
                 <span>Mark as Urgent</span>
               </label>
 
-              <button className="submit-btn" type="button">
+              <button className="submit-btn" type="button" onClick={handleSubmitPost}>
                 Post Request
               </button>
             </form>

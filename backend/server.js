@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chat');
+const communityRoutes = require('./routes/community');
 
 dotenv.config();
 
@@ -17,29 +18,32 @@ const app = express();
 connectDB();
 
 // Middleware
+// Middleware - Allow CORS for development (localhost and local network)
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and local network IPs
+    if (origin.includes('localhost') || 
+        origin.includes('127.0.0.1') ||
+        origin.match(/http:\/\/192\.168\.\d+\.\d+:3000/) ||
+        origin.match(/http:\/\/10\.\d+\.\d+\.\d+:3000/)) {
+      return callback(null, true);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Server is running!', 
-    status: 'success',
-    database: 'MongoDB Atlas',
-    endpoints: {
-      login: 'POST /api/login',
-      signup: 'POST /api/signup'
-    }
-  });
-});
-
 // API Routes
 app.use('/api', authRoutes);
 app.use('/api', chatRoutes);
+app.use('/api', communityRoutes);
 
 // 404 Handler
 app.use((req, res) => {
