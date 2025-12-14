@@ -7,6 +7,7 @@ const connectDB = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
 const chatRoutes = require('./routes/chat');
 const communityRoutes = require('./routes/community');
 
@@ -17,7 +18,6 @@ const app = express();
 // Connect to MongoDB Atlas
 connectDB();
 
-// Middleware
 // Middleware - Allow CORS for development (localhost and local network)
 app.use(cors({
   origin: function (origin, callback) {
@@ -42,6 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api', authRoutes);
+app.use('/api/emergency', emergencyRoutes);
 app.use('/api', chatRoutes);
 app.use('/api', communityRoutes);
 
