@@ -32,6 +32,8 @@ function CommunityBoard() {
     return id;
   });
 
+  const [loggedInUser, setLoggedInUser] = useState("");
+
   const [formData, setFormData] = useState({
     type: "Blood Needed",
     title: "",
@@ -47,7 +49,8 @@ function CommunityBoard() {
     location: "",
     status: "",
     sortBy: "createdAt",
-    order: "desc"
+    order: "desc",
+    searchQuery: ""
   });
 
   const filters = [
@@ -104,9 +107,9 @@ function CommunityBoard() {
         }
       }
 
-      if (showMyPosts) {
+      if (showMyPosts && loggedInUser) {
         params.append("myPosts", "true");
-        params.append("username", userId);
+        params.append("username", loggedInUser);
       }
 
       if (advancedFilters.timeRange) {
@@ -117,6 +120,9 @@ function CommunityBoard() {
       }
       if (advancedFilters.status) {
         params.append("status", advancedFilters.status);
+      }
+      if (advancedFilters.searchQuery) {
+        params.append("search", advancedFilters.searchQuery);
       }
 
       params.append("sortBy", advancedFilters.sortBy);
@@ -133,7 +139,7 @@ function CommunityBoard() {
         const formattedPosts = data.posts.map((post) => ({
           ...post,
           timeAgo: getTimeAgo(post.createdAt),
-          isMyPost: post.createdBy === userId || post.author === userId
+          isMyPost: post.author === loggedInUser
         }));
         setPosts(formattedPosts);
       } else {
@@ -146,7 +152,7 @@ function CommunityBoard() {
     } finally {
       setLoading(false);
     }
-  }, [activeFilter, showMyPosts, advancedFilters, userId]);
+  }, [activeFilter, showMyPosts, advancedFilters, loggedInUser]);
 
   useEffect(() => {
     fetchPosts();
@@ -159,6 +165,12 @@ function CommunityBoard() {
   const toggleMyPosts = () => {
     setShowMyPosts(!showMyPosts);
     setActiveFilter("All");
+    // Show confirmation when switching modes
+    if (!showMyPosts && formData.author) {
+      setTimeout(() => {
+        console.log("Showing posts by: " + formData.author);
+      }, 100);
+    }
   };
 
   const openWhatsApp = (phone, postTitle, postLocation) => {
@@ -213,7 +225,7 @@ function CommunityBoard() {
           },
           body: JSON.stringify({
             status: newStatus,
-            username: userId
+            username: loggedInUser
           })
         }
       );
@@ -240,7 +252,7 @@ function CommunityBoard() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/community/posts/" + postId + "?username=" + userId,
+        "http://localhost:5000/api/community/posts/" + postId + "?username=" + loggedInUser,
         {
           method: "DELETE"
         }
@@ -309,6 +321,7 @@ function CommunityBoard() {
       const data = await response.json();
 
       if (data.success) {
+        setLoggedInUser(formData.author);
         alert("Post created successfully!");
         setFormData({
           type: "Blood Needed",
@@ -379,6 +392,11 @@ function CommunityBoard() {
             "p",
             { className: "subtitle" },
             "Connect with people in emergencies"
+          ),
+          loggedInUser && React.createElement(
+            "p",
+            { style: { fontSize: "14px", color: "#666", marginTop: "5px" } },
+            "Logged in as: " + loggedInUser
           )
         ),
         React.createElement(
@@ -420,6 +438,21 @@ function CommunityBoard() {
         React.createElement(
           "div",
           { className: "advanced-filters" },
+          React.createElement(
+            "div",
+            { className: "filter-group" },
+            React.createElement("label", null, "Search Posts"),
+            React.createElement("input", {
+              type: "text",
+              placeholder: "Search by title, description, or author...",
+              value: advancedFilters.searchQuery,
+              onChange: (e) =>
+                setAdvancedFilters({
+                  ...advancedFilters,
+                  searchQuery: e.target.value
+                })
+            })
+          ),
           React.createElement(
             "div",
             { className: "filter-group" },
@@ -527,7 +560,8 @@ function CommunityBoard() {
                   location: "",
                   status: "",
                   sortBy: "createdAt",
-                  order: "desc"
+                  order: "desc",
+                  searchQuery: ""
                 })
             },
             "Clear Filters"
@@ -566,8 +600,8 @@ function CommunityBoard() {
                 "p",
                 null,
                 showMyPosts
-                  ? "You haven't created any posts yet."
-                  : "No posts found. Be the first to create a help request!"
+                  ? "No emergency posts created by " + loggedInUser + ". Click 'Create Post' to help someone!"
+                  : "No emergency posts found. Be the first to create a help request!"
               )
             )
           : posts.map((post) =>

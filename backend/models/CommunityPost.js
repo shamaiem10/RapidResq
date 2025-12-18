@@ -43,7 +43,8 @@ const communityPostSchema = new mongoose.Schema(
       type: String,
       required: true,
       maxlength: 100,
-      trim: true
+      trim: true,
+      index: true
     },
     createdBy: {
       type: String,

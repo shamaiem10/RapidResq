@@ -23,14 +23,15 @@ router.get('/posts', async (req, res) => {
       sortBy = 'createdAt',
       order = 'desc',
       myPosts,
-      username
+      username,
+      search
     } = req.query;
 
     const filter = {};
 
-    // My Posts filter
+    // My Posts filter - IMPORTANT: Match author field with username
     if (myPosts === 'true' && username) {
-      filter.createdBy = username;
+      filter.author = username;
     }
 
     // Type filter
@@ -47,13 +48,22 @@ router.get('/posts', async (req, res) => {
     if (status && status !== '') {
       filter.status = status;
     } else if (myPosts !== 'true') {
-      // Default: show open and in-progress posts
+      // Default: show open and in-progress posts only when viewing all posts
       filter.status = { $in: ['open', 'in-progress'] };
     }
 
     // Location filter (case-insensitive)
     if (location && location !== '') {
       filter.location = { $regex: location, $options: 'i' };
+    }
+
+    // Search filter (searches title, description, and author)
+    if (search && search !== '') {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { author: { $regex: search, $options: 'i' } }
+      ];
     }
 
     // Time range filter
@@ -102,7 +112,12 @@ router.get('/posts', async (req, res) => {
     res.json({
       success: true,
       posts: posts,
-      count: posts.length
+      count: posts.length,
+      filters: {
+        myPosts: myPosts === 'true' ? true : false,
+        username: username || null,
+        search: search || null
+      }
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -236,8 +251,8 @@ router.patch('/posts/:postId/status', async (req, res) => {
       });
     }
 
-    // Verify ownership
-    if (post.createdBy !== username && post.author !== username) {
+    // Verify ownership - check if author matches the username
+    if (post.author !== username) {
       return res.status(403).json({
         success: false,
         message: 'You can only update your own posts'
@@ -292,8 +307,8 @@ router.delete('/posts/:postId', async (req, res) => {
       });
     }
 
-    // Verify ownership
-    if (post.createdBy !== username && post.author !== username) {
+    // Verify ownership - check if author matches the username
+    if (post.author !== username) {
       return res.status(403).json({
         success: false,
         message: 'You can only delete your own posts'
