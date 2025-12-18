@@ -54,10 +54,13 @@ app.use('/api', authRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api', chatRoutes);
 app.use('/api', communityRoutes);
+// Also mount community routes under /api/community to support older frontend calls
+app.use('/api/community', communityRoutes);
 app.use('/api', panicRoutes);
 
 // 404 Handler
 app.use((req, res) => {
+  console.warn(`❓ 404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: 'Route not found'

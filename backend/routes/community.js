@@ -2,32 +2,107 @@ const express = require('express');
 const router = express.Router();
 const CommunityPost = require('../models/CommunityPost');
 
-// GET all posts with optional filtering
-router.get('/community/posts', async (req, res) => {
+// Utility function to validate phone number
+const validatePhoneNumber = (phone) => {
+  // Remove all non-digit characters
+  const cleanPhone = phone.replace(/\D/g, '');
+  
+  // Accept phone numbers with 10-15 digits after cleaning
+  return cleanPhone.length >= 10 && cleanPhone.length <= 15;
+};
+
+// GET all posts with filtering
+router.get('/posts', async (req, res) => {
   try {
-    const { type, urgent, location } = req.query;
+    const {
+      type,
+      urgent,
+      status,
+      location,
+      timeRange,
+      sortBy = 'createdAt',
+      order = 'desc',
+      myPosts,
+      username
+    } = req.query;
+
     const filter = {};
 
+    // My Posts filter
+    if (myPosts === 'true' && username) {
+      filter.createdBy = username;
+    }
+
+    // Type filter
     if (type && type !== 'All') {
       filter.type = type;
     }
 
+    // Urgent filter
     if (urgent === 'true') {
       filter.urgent = true;
     }
 
-    if (location) {
-      filter.location = new RegExp(location, 'i');
+    // Status filter
+    if (status && status !== '') {
+      filter.status = status;
+    } else if (myPosts !== 'true') {
+      // Default: show open and in-progress posts
+      filter.status = { $in: ['open', 'in-progress'] };
+    }
+
+    // Location filter (case-insensitive)
+    if (location && location !== '') {
+      filter.location = { $regex: location, $options: 'i' };
+    }
+
+    // Time range filter
+    if (timeRange && timeRange !== '') {
+      const now = new Date();
+      let fromDate;
+
+      switch (timeRange) {
+        case '1h':
+          fromDate = new Date(now.getTime() - 60 * 60 * 1000);
+          break;
+        case '24h':
+          fromDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case '7d':
+          fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          fromDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          fromDate = null;
+      }
+
+      if (fromDate) {
+        filter.createdAt = { $gte: fromDate };
+      }
+    }
+
+    // Sort options
+    let sortOptions = {};
+    if (sortBy === 'createdAt') {
+      sortOptions = { createdAt: order === 'desc' ? -1 : 1 };
+    } else if (sortBy === 'updatedAt') {
+      sortOptions = { updatedAt: order === 'desc' ? -1 : 1 };
+    } else if (sortBy === 'urgent') {
+      sortOptions = { urgent: -1, createdAt: -1 };
+    } else {
+      sortOptions = { createdAt: -1 };
     }
 
     const posts = await CommunityPost.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(50);
+      .sort(sortOptions)
+      .limit(200);
 
     res.json({
       success: true,
-      count: posts.length,
-      posts
+      posts: posts,
+      count: posts.length
     });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -39,53 +114,66 @@ router.get('/community/posts', async (req, res) => {
   }
 });
 
-// GET single post by ID
-router.get('/community/posts/:id', async (req, res) => {
+// POST create new post
+router.post('/posts', async (req, res) => {
   try {
-    const post = await CommunityPost.findById(req.params.id);
-
-    if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: 'Post not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      post
-    });
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching post',
-      error: error.message
-    });
-  }
-});
-
-// CREATE new post
-router.post('/community/posts', async (req, res) => {
-  try {
-    const { type, title, description, location, phone, author, urgent } = req.body;
-
-    // Validate required fields
-    if (!type || !title || !description || !location || !phone || !author) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required: type, title, description, location, phone, author'
-      });
-    }
-
-    const newPost = new CommunityPost({
+    const {
       type,
       title,
       description,
       location,
       phone,
       author,
-      urgent: urgent || false,
+      urgent,
+      createdBy
+    } = req.body;
+
+    // Validation
+    if (!type || !title || !description || !location || !phone || !author) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Validate phone number
+    if (!validatePhoneNumber(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number. Please enter a valid phone number with 10-15 digits'
+      });
+    }
+
+    // Clean phone number (remove non-digits)
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    // Validate title length
+    if (title.length < 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title must be at least 5 characters'
+      });
+    }
+
+    // Validate description length
+    if (description.length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Description must be at least 10 characters'
+      });
+    }
+
+    // Create new post
+    const newPost = new CommunityPost({
+      type,
+      title: title.trim(),
+      description: description.trim(),
+      location: location.trim(),
+      phone: cleanPhone,
+      author: author.trim(),
+      urgent: urgent === true || urgent === 'true' || false,
+      createdBy: (createdBy || author).trim(),
+      status: 'open',
       responses: 0
     });
 
@@ -98,6 +186,16 @@ router.post('/community/posts', async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating post:', error);
+
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: messages
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error creating post',
@@ -106,71 +204,107 @@ router.post('/community/posts', async (req, res) => {
   }
 });
 
-// UPDATE post by ID
-router.put('/community/posts/:id', async (req, res) => {
+// PATCH update post status
+router.patch('/posts/:postId/status', async (req, res) => {
   try {
-    const { type, title, description, location, phone, author, urgent } = req.body;
+    const { postId } = req.params;
+    const { status, closureNote, username } = req.body;
 
-    // Validate required fields
-    if (!type || !title || !description || !location || !phone || !author) {
+    if (!status || !username) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required: type, title, description, location, phone, author'
+        message: 'Status and username are required'
       });
     }
 
-    const updatedPost = await CommunityPost.findByIdAndUpdate(
-      req.params.id,
-      {
-        type,
-        title,
-        description,
-        location,
-        phone,
-        author,
-        urgent
-      },
-      { new: true, runValidators: true }
-    );
+    // Validate status
+    const validStatuses = ['open', 'in-progress', 'resolved', 'closed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status value'
+      });
+    }
 
-    if (!updatedPost) {
+    // Find the post
+    const post = await CommunityPost.findById(postId);
+
+    if (!post) {
       return res.status(404).json({
         success: false,
         message: 'Post not found'
       });
     }
 
+    // Verify ownership
+    if (post.createdBy !== username && post.author !== username) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only update your own posts'
+      });
+    }
+
+    // Update status
+    post.status = status;
+
+    if (closureNote !== undefined) {
+      post.closureNote = closureNote.trim();
+    }
+
+    post.updatedAt = new Date();
+    await post.save();
+
     res.json({
       success: true,
-      message: 'Post updated successfully',
-      post: updatedPost
+      message: 'Post status updated successfully',
+      post: post
     });
   } catch (error) {
-    console.error('Error updating post:', error);
+    console.error('Error updating post status:', error);
     res.status(500).json({
       success: false,
-      message: 'Error updating post',
+      message: 'Error updating post status',
       error: error.message
     });
   }
 });
 
-// DELETE post by ID
-router.delete('/community/posts/:id', async (req, res) => {
+// DELETE post
+router.delete('/posts/:postId', async (req, res) => {
   try {
-    const deletedPost = await CommunityPost.findByIdAndDelete(req.params.id);
+    const { postId } = req.params;
+    const { username } = req.query;
 
-    if (!deletedPost) {
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username is required'
+      });
+    }
+
+    // Find the post
+    const post = await CommunityPost.findById(postId);
+
+    if (!post) {
       return res.status(404).json({
         success: false,
         message: 'Post not found'
       });
     }
 
+    // Verify ownership
+    if (post.createdBy !== username && post.author !== username) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete your own posts'
+      });
+    }
+
+    await CommunityPost.findByIdAndDelete(postId);
+
     res.json({
       success: true,
-      message: 'Post deleted successfully',
-      post: deletedPost
+      message: 'Post deleted successfully'
     });
   } catch (error) {
     console.error('Error deleting post:', error);
@@ -182,14 +316,12 @@ router.delete('/community/posts/:id', async (req, res) => {
   }
 });
 
-// INCREMENT responses count
-router.post('/community/posts/:id/respond', async (req, res) => {
+// GET single post by ID
+router.get('/posts/:postId', async (req, res) => {
   try {
-    const post = await CommunityPost.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { responses: 1 } },
-      { new: true }
-    );
+    const { postId } = req.params;
+
+    const post = await CommunityPost.findById(postId);
 
     if (!post) {
       return res.status(404).json({
@@ -200,14 +332,45 @@ router.post('/community/posts/:id/respond', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Response counted',
-      post
+      post: post
     });
   } catch (error) {
-    console.error('Error incrementing responses:', error);
+    console.error('Error fetching post:', error);
     res.status(500).json({
       success: false,
-      message: 'Error incrementing responses',
+      message: 'Error fetching post',
+      error: error.message
+    });
+  }
+});
+
+// PATCH increment response count
+router.patch('/posts/:postId/respond', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await CommunityPost.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    post.responses = (post.responses || 0) + 1;
+    await post.save();
+
+    res.json({
+      success: true,
+      message: 'Response count updated',
+      responses: post.responses
+    });
+  } catch (error) {
+    console.error('Error updating response count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating response count',
       error: error.message
     });
   }

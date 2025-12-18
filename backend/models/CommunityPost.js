@@ -4,39 +4,69 @@ const communityPostSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ['Blood Needed', 'Missing Person', 'Medical Emergency', 'Shelter Needed', 'Food / Water', 'Disaster Help', 'Life in Danger'],
+      enum: [
+        'Blood Needed',
+        'Missing Person',
+        'Medical Emergency',
+        'Shelter Needed',
+        'Food / Water',
+        'Disaster Help'
+      ],
       required: true
     },
     title: {
       type: String,
       required: true,
       minlength: 5,
-      maxlength: 100
+      maxlength: 100,
+      trim: true
     },
     description: {
       type: String,
       required: true,
       minlength: 10,
-      maxlength: 1000
+      maxlength: 1000,
+      trim: true
     },
     location: {
       type: String,
       required: true,
-      maxlength: 100
+      maxlength: 100,
+      trim: true
     },
     phone: {
       type: String,
       required: true,
-      match: /^[0-9]{10,15}$/ // Phone number validation (10-15 digits)
+      trim: true
     },
     author: {
       type: String,
       required: true,
-      maxlength: 100
+      maxlength: 100,
+      trim: true
+    },
+    createdBy: {
+      type: String,
+      required: true,
+      maxlength: 100,
+      index: true,
+      trim: true
     },
     urgent: {
       type: Boolean,
       default: false
+    },
+    status: {
+      type: String,
+      enum: ['open', 'in-progress', 'resolved', 'closed'],
+      default: 'open',
+      index: true
+    },
+    closureNote: {
+      type: String,
+      maxlength: 500,
+      default: '',
+      trim: true
     },
     responses: {
       type: Number,
@@ -44,7 +74,8 @@ const communityPostSchema = new mongoose.Schema(
     },
     createdAt: {
       type: Date,
-      default: Date.now
+      default: Date.now,
+      index: true
     },
     updatedAt: {
       type: Date,
@@ -52,12 +83,15 @@ const communityPostSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true // Automatically adds createdAt and updatedAt
+    timestamps: true
   }
 );
 
-// Index for better query performance
+// Indexes for better query performance
 communityPostSchema.index({ type: 1, urgent: -1, createdAt: -1 });
 communityPostSchema.index({ location: 1 });
+communityPostSchema.index({ createdBy: 1, createdAt: -1 });
+communityPostSchema.index({ status: 1, createdAt: -1 });
+communityPostSchema.index({ status: 1, urgent: -1, createdAt: -1 });
 
 module.exports = mongoose.model('CommunityPost', communityPostSchema);

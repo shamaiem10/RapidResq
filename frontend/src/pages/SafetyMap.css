@@ -233,6 +233,51 @@ body {
   background-size: 40px 40px;
 }
 
+/* Map area for react-leaflet */
+.map-area {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+}
+
+/* Ensure leaflet container fills our area */
+.map-area .leaflet-container {
+  border-radius: 20px;
+}
+
+/* small permanent tooltip for markers */
+.map-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #1f2937 !important;
+  font-size: 11px !important;
+  padding: 4px 6px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+.map-tooltip.user-tooltip {
+  background: rgba(16,185,129,0.95) !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.map-loading, .map-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  background: rgba(255,255,255,0.95);
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+  color: #111827;
+  font-weight: 600;
+}
+
+
 .map-placeholder {
   position: absolute;
   top: 50%;
@@ -270,48 +315,96 @@ body {
 /* Service Filters */
 .service-filters {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
-  padding: 28px;
+  padding: 18px;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.service-btn {
-  padding: 14px 28px;
-  border: none;
+/* Legend */
+.map-legend {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  background: white;
+  padding: 10px 12px;
   border-radius: 10px;
-  font-size: 15px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 60;
+  font-size: 13px;
+  color: #111827;
+}
+
+.legend-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.legend-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* Filters list */
+.filters-list {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-checkbox {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.service-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  gap: 8px;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .service-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.service-btn.active {
+  transform: translateY(-2px);
+  opacity: 1;
 }
 
 .service-btn.hospital {
   background-color: #3b82f6;
 }
 
-.service-btn.shelter {
-  background-color: #22c55e;
+.service-btn.community {
+  background-color: #f97316;
 }
 
-.service-btn.fire-station {
-  background-color: #ef4444;
-}
-
-.service-btn.police {
+.service-btn.service {
   background-color: #eab308;
 }
 
