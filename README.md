@@ -166,7 +166,7 @@ http://localhost:5000/api
 
 - **Kiran Waqar** – Backend Developer & Project Lead
 - **Maryam Sheraz** – Backend Developer
-- **Shamaiem Shabbir** – Frontend Developer
+- **Shamaiem Shabbir** – Frontend Developer + Backend(SafetyMaps & Community Feed)
 
 ## License
 
