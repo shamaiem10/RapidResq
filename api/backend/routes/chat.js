@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Groq = require('groq-sdk');
+const Groq = require('groq-sdk/index.mjs');
 const dotenv = require('dotenv');
 
 dotenv.config();
