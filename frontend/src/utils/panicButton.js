@@ -78,9 +78,14 @@ export const handlePanicButton = async (navigate, setLoading = null) => {
     } else {
       // Handle specific error messages
       if (data.missingField === 'phone' || data.missingField === 'location') {
-        alert(`⚠️ ${data.message}\n\nPlease update your profile with the required information or contact emergency services directly: 911`);
+        const fieldName = data.missingField === 'phone' ? 'phone number' : 'location';
+        alert(`⚠️ Missing ${fieldName.toUpperCase()}\n\n${data.message}\n\nPlease update your account profile with your ${fieldName}, then try again.\n\nFor immediate emergency assistance, call 911 or your local emergency number.`);
+        // Redirect to account page
+        if (navigate) {
+          navigate("/account");
+        }
       } else {
-        alert('Error creating emergency post: ' + (data.message || 'Please try again or contact emergency services directly.'));
+        alert('⚠️ Unable to create emergency alert.\n\n' + (data.message || 'Unknown error occurred.') + '\n\nFor immediate help, call 911 or your local emergency number.');
       }
     }
   } catch (error) {

@@ -516,6 +516,23 @@
     justify-content: flex-end;
     gap: 8px;
   }
+
+  /* Panic Button - Larger touch target for mobile */
+  .fab {
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fab {
+    width: 56px;
+    height: 56px;
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
 }
 
 /* Loading and Empty States */

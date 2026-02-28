@@ -57,7 +57,10 @@ const SafetyMap = () => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           setUserLocation([lat, lon]);
-          leafletMapRef.current.setView([lat, lon], 12);
+          // Check if map is still mounted before setting view
+          if (leafletMapRef.current) {
+            leafletMapRef.current.setView([lat, lon], 12);
+          }
         },
         () => {
           // ignore permission error

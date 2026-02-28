@@ -174,14 +174,16 @@ router.post('/panic', async (req, res) => {
 
     // Create emergency post
     const emergencyPost = new CommunityPost({
-      type: 'Life in Danger',
-      title: 'EMERGENCY – LIFE IN DANGER',
+      type: 'Medical Emergency',
+      title: '🚨 EMERGENCY – LIFE IN DANGER',
       description: 'This is an emergency panic alert. The user is in immediate danger and unable to provide details. Please contact immediately and send help to the location.',
       location: location,
       phone: phoneDigits,
       author: fullName,
+      createdBy: user.username || username.trim().toLowerCase(),
       urgent: true,
-      responses: 0
+      responses: 0,
+      status: 'open'
     });
 
     await emergencyPost.save();

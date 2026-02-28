@@ -56,7 +56,7 @@ function AccountPage() {
           phone: user.phone || '',
           age: user.age || '',
           city: user.location || '',
-          isVolunteer: user.skills && user.skills.length > 0,
+          isVolunteer: user.isVolunteer || false,
           skills: user.skills ? user.skills.join(', ') : (user.otherSkill || ''),
           emergencyContact: user.emergencyContact || '',
           bloodType: user.bloodGroup || '',

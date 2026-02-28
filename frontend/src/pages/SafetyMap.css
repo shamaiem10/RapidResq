@@ -528,4 +528,35 @@ body {
     width: 100%;
     justify-content: center;
   }
+
+  /* Panic and Help Buttons - Larger touch targets for mobile */
+  .fab {
+    width: 68px;
+    height: 68px;
+    bottom: 28px;
+    right: 28px;
+  }
+
+  .floating-help-btn {
+    width: 52px;
+    height: 52px;
+    bottom: 108px;
+    right: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fab {
+    width: 60px;
+    height: 60px;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .floating-help-btn {
+    width: 48px;
+    height: 48px;
+    bottom: 88px;
+    right: 1rem;
+  }
 }

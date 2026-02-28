@@ -10,7 +10,8 @@ const communityPostSchema = new mongoose.Schema(
         'Medical Emergency',
         'Shelter Needed',
         'Food / Water',
-        'Disaster Help'
+        'Disaster Help',
+        'Life in Danger'
       ],
       required: true
     },
@@ -48,10 +49,13 @@ const communityPostSchema = new mongoose.Schema(
     },
     createdBy: {
       type: String,
-      required: true,
+      required: false,
       maxlength: 100,
       index: true,
-      trim: true
+      trim: true,
+      default: function() {
+        return this.author;
+      }
     },
     urgent: {
       type: Boolean,
