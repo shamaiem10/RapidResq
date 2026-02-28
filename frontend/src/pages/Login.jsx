@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-import API_URL from "../config"; // Vercel-compatible API URL
+import API_URL from "../utils/config"; // Vercel-compatible API URL
 
 const Login = () => {
   const navigate = useNavigate();
