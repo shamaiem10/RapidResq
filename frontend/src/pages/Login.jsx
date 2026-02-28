@@ -176,6 +176,7 @@ const Login = () => {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={errors.username ? "error" : ""}
+                autoComplete="username"
                 required
               />
               {errors.username && (

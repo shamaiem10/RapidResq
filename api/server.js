@@ -1,8 +1,7 @@
-// api/index.js
+// api/server.js - Local development server
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const serverless = require("serverless-http");
 const connectDB = require("./backend/config/database");
 
 // Import routes
@@ -24,13 +23,11 @@ app.use(cors()); // You can restrict origins if needed
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Debug: log incoming requests in dev
-if (process.env.NODE_ENV !== "production") {
-  app.use("/api", (req, res, next) => {
-    console.log(`[${req.method}] ${req.path}`);
-    next();
-  });
-}
+// Debug: log incoming requests
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`);
+  next();
+});
 
 // API Routes
 app.use("/api", authRoutes);
@@ -58,5 +55,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Export as serverless function
-module.exports = serverless(app);
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Backend server running on http://localhost:${PORT}`);
+  console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`✅ API available at: http://localhost:${PORT}/api`);
+});
