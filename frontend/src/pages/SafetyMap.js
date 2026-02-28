@@ -10,7 +10,8 @@ const SafetyMap = () => {
   const [location, setLocation] = useState('');
 
   // Map + marker state
-  const API_BASE_URL = process.env.REACT_APP_API_BASE || 'http://localhost:5000';
+  // Use Vercel environment variable if set, otherwise fallback to localhost
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // community markers (grouped by location)

@@ -1,20 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-
-// Fully dynamic API URL - auto-detects any host's IP
-const getAPIBaseURL = () => {
-  const hostname = window.location.hostname;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  } else {
-    // Automatically use the current host's IP for mobile/network access
-    return `http://${hostname}:5000/api`;
-  }
-};
-
-const API_BASE_URL = getAPIBaseURL();
+import API_URL from "../config"; // Vercel-compatible API URL
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,7 +18,7 @@ const Login = () => {
   // Client-side validation
   const validateField = (name, value) => {
     const newErrors = { ...errors };
-    
+
     switch (name) {
       case "username":
         if (!value || value.trim().length === 0) {
@@ -44,7 +31,7 @@ const Login = () => {
           delete newErrors.username;
         }
         break;
-      
+
       case "password":
         if (!value || value.length === 0) {
           newErrors.password = "Password is required";
@@ -54,11 +41,11 @@ const Login = () => {
           delete newErrors.password;
         }
         break;
-      
+
       default:
         break;
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -66,16 +53,9 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    
-    // Clear success message when user types
-    if (successMessage) {
-      setSuccessMessage("");
-    }
-    
-    // Real-time validation
-    if (errors[name]) {
-      validateField(name, value);
-    }
+
+    if (successMessage) setSuccessMessage("");
+    if (errors[name]) validateField(name, value);
   };
 
   const handleBlur = (e) => {
@@ -92,16 +72,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMessage("");
-    
-    // Validate all fields
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,37 +95,36 @@ const Login = () => {
         setSuccessMessage(data.message || "Login successful!");
         setFormData({ username: "", password: "" });
         setErrors({});
-        
-        // Store user data in localStorage for Account page
+
         if (data.data) {
-          localStorage.setItem('currentUser', JSON.stringify({
-            username: data.data.username,
-            email: data.data.email || '',
-            fullName: data.data.fullName || ''
-          }));
+          localStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+              username: data.data.username,
+              email: data.data.email || "",
+              fullName: data.data.fullName || "",
+            })
+          );
         } else {
-          // Fallback: store username from form
-          localStorage.setItem('currentUser', JSON.stringify({
-            username: formData.username.trim(),
-            email: '',
-            fullName: ''
-          }));
+          localStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+              username: formData.username.trim(),
+              email: "",
+              fullName: "",
+            })
+          );
         }
-        
-        // Redirect to dashboard after 1 second
+
         setTimeout(() => {
           navigate("/dashboard");
         }, 1000);
       } else {
-        // Handle validation errors from server
         if (data.errors && Array.isArray(data.errors)) {
           const serverErrors = {};
           data.errors.forEach((error) => {
-            if (error.includes("Username")) {
-              serverErrors.username = error;
-            } else if (error.includes("Password")) {
-              serverErrors.password = error;
-            }
+            if (error.includes("Username")) serverErrors.username = error;
+            else if (error.includes("Password")) serverErrors.password = error;
           });
           setErrors(serverErrors);
         } else {
@@ -165,7 +141,6 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      {/* BACK ARROW FIXED ON PAGE */}
       <div className="page-back-arrow">
         <Link to="/">
           <i className="bi bi-arrow-left"></i> Back to home
@@ -176,7 +151,6 @@ const Login = () => {
         <div className="login-card">
           <h2 className="login-title">Login</h2>
 
-          {/* Success Message */}
           {successMessage && (
             <div className="message success-message">
               <i className="bi bi-check-circle"></i>
@@ -184,7 +158,6 @@ const Login = () => {
             </div>
           )}
 
-          {/* Error Message */}
           {errors.submit && (
             <div className="message error-message">
               <i className="bi bi-exclamation-circle"></i>
@@ -243,16 +216,12 @@ const Login = () => {
               )}
             </div>
 
-            <button 
-              className="login-btn" 
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <button className="login-btn" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
 
             <p className="signup-text">
-              Don't have an account? <a href="/signup">Sign up</a>
+              Don't have an account? <Link to="/signup">Sign up</Link>
             </p>
           </form>
         </div>

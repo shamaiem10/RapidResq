@@ -3,20 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Account.css";
 import { AlertTriangle } from "lucide-react";
 import { handlePanicButton } from "../utils/panicButton";
-
-// Fully dynamic API URL - auto-detects any host's IP
-const getAPIBaseURL = () => {
-  const hostname = window.location.hostname;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  } else {
-    // Automatically use the current host's IP for mobile/network access
-    return `http://${hostname}:5000/api`;
-  }
-};
-
-const API_BASE_URL = getAPIBaseURL();
+import API_URL from "../config"; // ✅ Use the centralized API URL
 
 function AccountPage() {
   const navigate = useNavigate();
@@ -39,19 +26,18 @@ function AccountPage() {
   // Fetch user profile data
   const fetchUserProfile = async (username) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/profile/${username}`);
+      const response = await fetch(`${API_URL}/profile/${username}`);
       const data = await response.json();
       
       if (data.success && data.data) {
         const user = data.data;
-        // Parse fullName into firstName and lastName
         const nameParts = user.fullName ? user.fullName.split(' ') : ['', ''];
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
         
         setFormData({
-          firstName: firstName,
-          lastName: lastName,
+          firstName,
+          lastName,
           email: user.email || '',
           phone: user.phone || '',
           age: user.age || '',
@@ -71,7 +57,6 @@ function AccountPage() {
     }
   };
 
-  // Load user data on component mount
   useEffect(() => {
     const currentUser = localStorage.getItem('currentUser');
     if (currentUser) {
@@ -111,7 +96,6 @@ function AccountPage() {
       const userData = JSON.parse(currentUser);
       setLoading(true);
 
-      // Prepare data for update
       const updateData = {
         fullName: `${formData.firstName} ${formData.lastName}`.trim(),
         email: formData.email,
@@ -125,11 +109,9 @@ function AccountPage() {
         isVolunteer: formData.isVolunteer
       };
 
-      const response = await fetch(`${API_BASE_URL}/profile/${userData.username}`, {
+      const response = await fetch(`${API_URL}/profile/${userData.username}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
       });
 
@@ -137,7 +119,6 @@ function AccountPage() {
 
       if (response.ok && data.success) {
         alert('Profile updated successfully!');
-        // Update localStorage with new data
         localStorage.setItem('currentUser', JSON.stringify({
           ...userData,
           fullName: updateData.fullName,
@@ -155,9 +136,8 @@ function AccountPage() {
   };
 
   function handleLogout() {
-    if (window.confirm('Are you sure you want to logout? This will clear your session data.')) {
+    if (window.confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('currentUser');
-      // Reset form data
       setFormData({
         firstName: "",
         lastName: "",
@@ -173,38 +153,26 @@ function AccountPage() {
       });
       setUserLoggedIn(false);
       alert('You have been logged out successfully!');
-      // Redirect to landing page
       navigate("/");
     }
   }
 
-  // Handle panic button click - uses utility function
-  const onPanicButtonClick = () => {
-    handlePanicButton(navigate, setLoading);
-  };
+  const onPanicButtonClick = () => handlePanicButton(navigate, setLoading);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="account-page">
-        <main className="account-main-content">
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p>Loading profile data...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="account-page">
+      <main className="account-main-content">
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>Loading profile data...</p>
+        </div>
+      </main>
+    </div>
+  );
 
-  // Generate avatar initials
   const getInitials = () => {
-    if (formData.firstName && formData.lastName) {
-      return (formData.firstName[0] + formData.lastName[0]).toUpperCase();
-    } else if (formData.firstName) {
-      return formData.firstName[0].toUpperCase();
-    } else if (formData.email) {
-      return formData.email[0].toUpperCase();
-    }
+    if (formData.firstName && formData.lastName) return (formData.firstName[0] + formData.lastName[0]).toUpperCase();
+    if (formData.firstName) return formData.firstName[0].toUpperCase();
+    if (formData.email) return formData.email[0].toUpperCase();
     return "U";
   };
 

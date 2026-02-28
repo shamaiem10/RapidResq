@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { handlePanicButton } from "../utils/panicButton";
 import "./Community.css";
-
+import { API_URL } from '../utils/config'; // adjust the path if needed
 function CommunityBoard() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
@@ -95,7 +95,7 @@ function CommunityBoard() {
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
-      let url = "http://localhost:5000/api/community/posts";
+      let url = `${API_URL}/community/posts`;
 
       const params = new URLSearchParams();
 
@@ -217,7 +217,7 @@ function CommunityBoard() {
   const handleStatusUpdate = async (postId, newStatus) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/community/posts/" + postId + "/status",
+        `${API_URL}/community/posts/${postId}/status`,
         {
           method: "PATCH",
           headers: {
@@ -252,7 +252,7 @@ function CommunityBoard() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/community/posts/" + postId + "?username=" + loggedInUser,
+        `${API_URL}/community/posts/${postId}?username=${loggedInUser}`,
         {
           method: "DELETE"
         }
@@ -299,7 +299,7 @@ function CommunityBoard() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/community/posts",
+        `${API_URL}/community/posts`,
         {
           method: "POST",
           headers: {

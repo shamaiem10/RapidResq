@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './Ai.css';
 import { AlertTriangle } from 'lucide-react';
 import { handlePanicButton } from '../utils/panicButton';
-
+// src/utils/config.js
+export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const AIEmergencyPage = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
@@ -177,7 +178,7 @@ const AIEmergencyPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

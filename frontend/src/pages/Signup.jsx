@@ -3,19 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Signup.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-// Fully dynamic API URL - auto-detects any host's IP
-const getAPIBaseURL = () => {
-  const hostname = window.location.hostname;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  } else {
-    // Automatically use the current host's IP for mobile/network access
-    return `http://${hostname}:5000/api`;
-  }
-};
 
-const API_BASE_URL = getAPIBaseURL();
+// API base URL: use Vercel environment variable or fallback to localhost for local dev
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const Signup = () => {
   const navigate = useNavigate();
