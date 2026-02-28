@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './EmergencyNumbers.css';
 import { Phone, Clock, MapPin, AlertTriangle, Loader2 } from 'lucide-react';
 import { handlePanicButton } from '../utils/panicButton';
-import API_URL from '../utils/config'; // Vercel-compatible API URL
-
+import API_URL from '../utils/config';
 const EmergencyNumbers = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState(null);

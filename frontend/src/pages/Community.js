@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { handlePanicButton } from "../utils/panicButton";
 import "./Community.css";
-import { API_URL } from '../utils/config'; // adjust the path if needed
+import  API_URL  from '../utils/config'; // adjust the path if needed
 function CommunityBoard() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");

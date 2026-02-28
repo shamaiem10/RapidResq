@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Account.css";
 import { AlertTriangle } from "lucide-react";
 import { handlePanicButton } from "../utils/panicButton";
-import API_URL from "../config"; // ✅ Use the centralized API URL
+import API_URL from '../utils/config';
 
 function AccountPage() {
   const navigate = useNavigate();
