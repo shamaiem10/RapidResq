@@ -3,15 +3,9 @@
  * Reusable function for panic button functionality across all pages
  */
 
-// Dynamic API URL for mobile compatibility
-const getApiBaseUrl = () => {
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return `http://${window.location.hostname}:5000/api`;
-  }
-  return "http://localhost:5000/api";
-};
+import API_URL from './config';
 
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = API_URL;
 
 /**
  * Handle panic button click

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API_URL from '../utils/config';
 import "./Signup.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 
-// API base URL: use Vercel environment variable or fallback to localhost for local dev
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// API base URL: use centralized configuration
+const API_BASE_URL = API_URL;
 
 const Signup = () => {
   const navigate = useNavigate();

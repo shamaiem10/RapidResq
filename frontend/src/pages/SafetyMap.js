@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Navigation, MapPin, AlertTriangle } from 'lucide-react';
 import L from 'leaflet';
 import { handlePanicButton } from '../utils/panicButton';
+import API_URL from '../utils/config';
 import './SafetyMap.css';
 
 const SafetyMap = () => {
@@ -10,8 +11,8 @@ const SafetyMap = () => {
   const [location, setLocation] = useState('');
 
   // Map + marker state
-  // Use Vercel environment variable if set, otherwise fallback to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  // Use centralized API configuration
+const API_BASE_URL = API_URL;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // community markers (grouped by location)
